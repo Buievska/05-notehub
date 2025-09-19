@@ -1,3 +1,5 @@
+// src/components/NoteList/NoteList.tsx
+
 import React, { useEffect } from "react";
 import {
   useQuery,
@@ -5,9 +7,12 @@ import {
   useQueryClient,
   keepPreviousData,
 } from "@tanstack/react-query";
+// ✅ Імпортуємо і функцію, і ТИП відповіді з одного місця
 import { fetchNotes, deleteNote } from "../../services/noteService";
+import type { FetchNotesResponse } from "../../services/noteService";
 import css from "./NoteList.module.css";
-import type { Note } from "../../types/note";
+// ✅ Тепер тип Note також не потрібен, бо він є частиною FetchNotesResponse
+// import type { Note } from "../../types/note";
 
 interface NoteListProps {
   page: number;
@@ -16,10 +21,11 @@ interface NoteListProps {
   setTotalPages: (pages: number) => void;
 }
 
-interface FetchNotesResponse {
-  items: Note[];
-  totalPages: number;
-}
+// ❌ Видаляємо дубльований інтерфейс
+// interface FetchNotesResponse {
+//   items: Note[];
+//   totalPages: number;
+// }
 
 const NoteList: React.FC<NoteListProps> = ({
   page,
@@ -29,12 +35,14 @@ const NoteList: React.FC<NoteListProps> = ({
 }) => {
   const queryClient = useQueryClient();
 
+  // ✅ Типізуємо useQuery імпортованим інтерфейсом
   const { data, isLoading, isError } = useQuery<FetchNotesResponse>({
     queryKey: ["notes", page, search],
     queryFn: () => fetchNotes({ page, perPage, search }),
     placeholderData: keepPreviousData,
   });
 
+  // ... (решта коду компонента без змін)
   const mutation = useMutation({
     mutationFn: (id: string) => deleteNote(id),
     onSuccess: () => {
@@ -50,11 +58,13 @@ const NoteList: React.FC<NoteListProps> = ({
 
   if (isLoading) return <p>Loading notes...</p>;
   if (isError) return <p>Failed to load notes</p>;
-  if (!data || data.items.length === 0) return <p>No notes found</p>;
+  if (!data || !data.notes || data.notes.length === 0) {
+    return <p>No notes found</p>;
+  }
 
   return (
     <ul className={css.list}>
-      {data.items.map((note) => (
+      {data.notes.map((note) => (
         <li key={note.id} className={css.listItem}>
           <h2 className={css.title}>{note.title}</h2>
           <p className={css.content}>{note.content}</p>
