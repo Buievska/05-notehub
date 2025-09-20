@@ -4,7 +4,6 @@ import axios from "axios";
 import type { AxiosResponse } from "axios";
 import type { Note } from "../types/note";
 
-// ... (код ініціалізації axios залишається без змін)
 const API_BASE = "https://notehub-public.goit.study/api";
 const token = import.meta.env.VITE_NOTEHUB_TOKEN;
 
@@ -36,9 +35,8 @@ export const fetchNotes = async ({
   perPage = 12,
   search = "",
 }: FetchNotesParams): Promise<FetchNotesResponse> => {
-  // Покращення: створюємо параметри для запиту
   const params: FetchNotesParams = { page, perPage };
-  // Додаємо `search` тільки якщо він існує
+
   if (search) {
     params.search = search;
   }
@@ -47,12 +45,9 @@ export const fetchNotes = async ({
     params,
   });
 
-  // ✅ Головне виправлення: повертаємо дані з сервера напряму.
-  // Тепер, якщо є помилка, useQuery її "зрозуміє" і покаже стан isError.
   return res.data;
 };
 
-// ... (решта файлу без змін)
 export const createNote = async (payload: {
   title: string;
   content?: string;
@@ -62,9 +57,7 @@ export const createNote = async (payload: {
   return res.data;
 };
 
-export const deleteNote = async (id: string): Promise<{ id: string }> => {
-  const res: AxiosResponse<{ id: string }> = await client.delete(
-    `/notes/${id}`
-  );
+export const deleteNote = async (id: string): Promise<Note> => {
+  const res: AxiosResponse<Note> = await client.delete(`/notes/${id}`);
   return res.data;
 };
