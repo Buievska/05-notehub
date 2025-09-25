@@ -18,15 +18,14 @@ const App: React.FC = () => {
 
   const { data, isLoading, isError } = useQuery<FetchNotesResponse>({
     queryKey: ["notes", page, debouncedSearch], // Використовуємо debouncedSearch
-    queryFn: () => fetchNotes({ page, perPage: 12, search: debouncedSearch }),
+    queryFn: () =>
+      fetchNotes({ page, perPage: 12, search: debouncedSearch ?? "" }),
     placeholderData: keepPreviousData,
   });
 
   // Скидаємо сторінку на першу при зміні пошукового запиту
   React.useEffect(() => {
-    if (debouncedSearch !== "") {
-      setPage(1);
-    }
+    setPage(1);
   }, [debouncedSearch]);
 
   const totalPages = data?.totalPages ?? 1;
